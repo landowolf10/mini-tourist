@@ -1,0 +1,61 @@
+
+
+<div class="header-container">
+    <div class="logo">
+      <img src="assets/logo.jpg" alt="logo" class="brand-logo" />
+    </div>
+
+    <button (click)="toggleMenu()">Idiomas</button>
+      <ul [ngClass]="{ 'expanded': isExpanded }">
+        <li class="spanish" [class.selected]="selectedItem === 'spanish'" (click)="menuItemClicked($event, 'spanish')">
+          <img src="assets/images/mexico_icon.png" style="max-width: 20px; max-height: 100px;">
+          <a href="#">Español</a>
+        </li>
+        <li class="english" [class.selected]="selectedItem === 'english'" (click)="menuItemClicked($event, 'english')">
+          <img src="assets/images/usa_icon.png" style="max-width: 20px; max-height: 100px;">
+          <a href="#">English</a>
+        </li>
+      </ul> 
+
+    <div class="cm-e-menu">
+      <ul>
+        <li class="topmenu">
+          <a>Inicio</a>
+          <ul class="submenu">
+            <li><a routerLink="/home">Carousel</a></li>
+            <li><a routerLink="/home">Locaciones</a></li>
+            <li>
+              <a routerLink="/home">Ciudades y destinos</a>
+              <ul class="submenu">
+                <li><a>Ixtapa-Zihuatanejo</a></li>
+                <li><a>Acapulco</a></li>
+                <li><a>Morelia</a></li>
+              </ul>
+            </li>
+            <li><a routerLink="/login">Iniciar sesión</a></li>
+          </ul>
+        </li>
+        <li class="topmenu">
+          <a routerLink="/about">Acerca de nosotros</a>
+        </li>
+        <li class="topmenu">
+          <a routerLink="/about-mt">¿Qué son las Minitourist Cards?</a>
+          <ul class="submenu">
+            <li><a routerLink="where-is-mt">¿Dónde encuentro las MiniTourist Cards?</a></li>
+            <li><a routerLink="more-about-mt">Conoce más sobre las MiniTourist Cards</a></li>
+          </ul>
+        </li>
+        <li class="topmenu">
+          <a routerLink="/contact">Contáctanos</a>
+        </li>
+        <li class="topmenu">
+          <a routerLink="/rate">Calificanos</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+<app-image-modal></app-image-modal>
+<router-outlet></router-outlet>
+<footer>
+  Minitourist Cards © Copyrights 2023
+</footer>

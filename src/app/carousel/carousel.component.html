@@ -1,0 +1,49 @@
+<div class="flexbox">
+	<div class="search">
+	  <div>
+		<input type="text" placeholder="Search . . ." required>
+	  </div>
+	</div>
+  </div>
+<div class="carousel-container">
+	
+	
+	<button (click)="toggleMenu()">CATEGORÍAS</button>
+	<ul [ngClass]="{ 'expanded': isExpanded }">
+		<li class="premium" [class.selected]="selectedItem === 'premium'" (click)="menuItemClicked($event, 'premium')"><a href="#">Premium</a></li>
+		<li class="parks" [class.selected]="selectedItem === 'parks'" (click)="menuItemClicked($event, 'parks')"><a href="#">Parques y atracciones</a></li>
+		<li class="restaurants" [class.selected]="selectedItem === 'restaurants'" (click)="menuItemClicked($event, 'restaurants')"><a href="#">Restaurantes, bar y cafeterías</a></li>
+		<li class="events" [class.selected]="selectedItem === 'places_events'" (click)="menuItemClicked($event, 'places_events')"><a href="#">Lugares y eventos</a></li>
+		<li class="stores" [class.selected]="selectedItem === 'stores'" (click)="menuItemClicked($event, 'stores')"><a href="#">Tiendas</a></li>
+		<li class="services" [class.selected]="selectedItem === 'services'" (click)="menuItemClicked($event, 'services')"><a href="#">Servicios</a></li>
+	</ul> 	
+	<button class="carousel-button left" (click)="rotateLeft()">
+		<img src="../../assets/left_button.png">
+	</button>
+	<button class="carousel-button right" (click)="rotateRight()">
+		<img src="../../assets/right_button.png">
+	</button>
+	<!-- Carousel -->
+	<div class="carousel">
+	  <ng-container *ngFor="let imageName of imageNames">
+		<a class="carousel-item">
+			<div *ngIf="hasImages; else noCards" class="img-area">
+				<img [src]="'assets/cards/' + selectedItem + '/' + imageName" alt="{{ imageName }}" (click)="openImageModal($event, imageName)">
+			</div>
+		  <ng-template #noCards>
+			No hay tarjetas
+		  </ng-template>
+		</a>
+	  </ng-container>
+	</div>
+	<div class="carousel">
+		<ng-container *ngFor="let imageName of socialMedia">
+		  <a class="carousel-social carousel-item">
+			  <div class="img-area-social">
+				  <img [src]="'assets/images/' + imageName">
+			  </div>
+		  </a>
+		</ng-container>
+	  </div>
+  </div>
+  
