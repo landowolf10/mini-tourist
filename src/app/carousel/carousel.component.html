@@ -6,8 +6,6 @@
 	</div>
   </div>
 <div class="carousel-container">
-	
-	
 	<button (click)="toggleMenu()">CATEGORÍAS</button>
 	<ul [ngClass]="{ 'expanded': isExpanded }">
 		<li class="premium" [class.selected]="selectedItem === 'premium'" (click)="menuItemClicked($event, 'premium')"><a href="#">Premium</a></li>
@@ -28,7 +26,7 @@
 	  <ng-container *ngFor="let imageName of imageNames">
 		<a class="carousel-item">
 			<div *ngIf="hasImages; else noCards" class="img-area">
-				<img [src]="'assets/cards/' + selectedItem + '/' + imageName" alt="{{ imageName }}" (click)="openImageModal($event, imageName)">
+				<img [src]=imageName alt="{{ imageName }}" (click)="openImageModal($event, imageName)">
 			</div>
 		  <ng-template #noCards>
 			No hay tarjetas

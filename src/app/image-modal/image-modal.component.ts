@@ -34,19 +34,40 @@ export class ImageModalComponent {
   }
 
   downloadImage(): void {
-    // Now you can use the imageName parameter as the selected image name
-    // For example, you can include it in the filename when downloading
-    const downloadFilename = this.selectedImageName; // Use imageName in the filename
-
-    console.log("Downloaded image name: ", downloadFilename);
-
-    const a = document.createElement('a');
-    a.href = this.data.frontImageSrc;
-    a.download = downloadFilename; // Set the download filename
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
+    if (!this.selectedImageName) {
+      console.error("No image URL provided");
+      return;
+    }
+  
+    console.log("Downloading image from URL: ", this.selectedImageName);
+  
+    fetch(this.selectedImageName)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+  
+        // Extract filename and provide a default name if undefined
+        const filename = this.selectedImageName.split('/').pop() || 'downloaded-image';
+        a.download = filename;
+  
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+  
+        // Clean up
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+  }  
 
   onCloseModal(): void {
     this.dialogRef.close();

@@ -8,17 +8,28 @@ import { DownloadButtonService } from '../services/download-button.service';
 
 declare var $: any;
 
+interface Card {
+  cardName: string;
+  category: string;
+  city: string;
+  clientId: number;
+  creationDate: string;
+  image: string;
+  premium: string;
+  updateDate: string | null;
+}
+
 @Component({
   selector: 'app-carousel',
   templateUrl: './carousel.component.html',
   styleUrls: ['./carousel.component.css']
 })
 export class CarouselComponent implements OnInit  {
-  imageNames: string[] = ['Barra de Potosí frente.jpg', 'FISHERS1 SP.jpg', 'La Isla Ixtapa.jpg', 'La Ropa frente.jpg', 'Las Gatas frente.jpg'];
+  imageNames: string[] = [];
   socialMedia: string[] = ['facebook.png', 'whats.png', 'instagram.png', 'twitter.png'];
   isExpanded = false;
-  selectedItem: string = 'premium';
-  hasImages: boolean = true;//Change back to false when calling images from API
+  selectedItem: string = 'Premium';
+  hasImages: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -28,15 +39,31 @@ export class CarouselComponent implements OnInit  {
   ) {}
 
   ngOnInit() {
-    //this.fetchImageNames();
-    this.initializeCarousel();
+    this.fetchPremiumImages();
+    //this.initializeCarousel();
     this.downloadButtonService.setButtonVisibility(false);
   }
+  
 
-  /*fetchImageNames() {
-    const apiUrl = `http://localhost:9090/api/card/list/${this.selectedItem}`;
-    this.http.get<string[]>(apiUrl).subscribe(data => {
-      this.imageNames = data;
+  fetchPremiumImages() {
+    const apiUrl = `http://localhost:9090/api/client/category/premium?isPremium=Yes`;
+    this.http.get<Card[]>(apiUrl).subscribe(data => {
+      this.imageNames = data.map(item => item.image);
+      console.log('Premium names: ', this.imageNames);
+      console.log('Premium array length: ', this.imageNames.length);
+
+      if(this.imageNames.length > 0)
+      { 
+        this.hasImages = true;
+        this.initializeCarousel();
+      }
+    });
+  }
+
+  fetchImageNames() {
+    const apiUrl = `http://localhost:9090/api/client/category?category=${this.selectedItem}`;
+    this.http.get<Card[]>(apiUrl).subscribe(data => {
+      this.imageNames = data.map(item => item.image);
       console.log('Image names: ', this.imageNames);
       console.log('Images array length: ', this.imageNames.length);
 
@@ -46,7 +73,7 @@ export class CarouselComponent implements OnInit  {
         this.initializeCarousel();
       }
     });
-  }*/
+  }
 
   toggleMenu() {
     this.isExpanded = !this.isExpanded;
@@ -55,7 +82,14 @@ export class CarouselComponent implements OnInit  {
   menuItemClicked(event: Event, item: string) {
     event.preventDefault();
     this.selectedItem = item;
-    //this.fetchImageNames();
+
+    //If premium, call premium, if not, call other
+    console.log('Selected category: ', this.selectedItem);
+
+    if (this.selectedItem == 'premium')
+      this.fetchPremiumImages();
+    else
+      this.fetchImageNames();
   }
 
   rotateLeft() {
@@ -86,11 +120,13 @@ export class CarouselComponent implements OnInit  {
     this.selectedImageService.setSelectedImageName(imageName);
     this.downloadButtonService.setButtonVisibility(true);
 
+    console.log('Selected image name: ', imageName);
+
     const dialogRef = this.dialog.open(ImageModalComponent, {
       //This is used in the image-modal.component.html file
       data: { 
-        frontImageSrc: `assets/cards/${this.selectedItem}/${imageName}`,
-        backImageSrc: `assets/cards/${this.selectedItem}/FISHERS1 SP.jpg`
+        frontImageSrc: imageName,
+        backImageSrc: `assets/cards/${this.selectedItem}/Fishers.jpg`
       }
     });
 
