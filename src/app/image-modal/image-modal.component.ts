@@ -2,6 +2,7 @@ import { Component, Inject, Optional } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { SelectedImageService } from '../services/selected-image.service';
 import { DownloadButtonService } from '../services/download-button.service';
+import { StatusService } from '../services/card-status.service';
 
 @Component({
   selector: 'app-image-modal',
@@ -12,13 +13,18 @@ export class ImageModalComponent {
   selectedImageName: string = '';
   isDownloadButtonVisible: boolean = false;
   isFlipped: boolean = false;
+  clientId: number | null = null;
+  city: string | null = null;
 
   constructor(
     public dialogRef: MatDialogRef<ImageModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private selectedImageService: SelectedImageService,
-    private downloadButtonService: DownloadButtonService
+    private downloadButtonService: DownloadButtonService,
+    private statusService: StatusService
   ) { 
+    console.log('Modal received data: ', data);
+
     this.selectedImageService.selectedImageName$.subscribe((imageName) => {
       this.selectedImageName = imageName;
       this.isDownloadButtonVisible = !!imageName;
@@ -27,6 +33,13 @@ export class ImageModalComponent {
     this.downloadButtonService.isButtonVisible$.subscribe((isVisible) => {
       this.isDownloadButtonVisible = isVisible;
     });
+
+    if (data && data.card) {
+      this.clientId = data.card.clientId;
+      this.city = data.card.city;
+    } else {
+      console.error('No card data provided to modal');
+    }
   }
   
   toggleFlip() {
@@ -63,6 +76,18 @@ export class ImageModalComponent {
   
         // Clean up
         window.URL.revokeObjectURL(url);
+
+        // Register status after successful download
+        if (this.clientId && this.city) {
+          const status = 'Downloaded';
+          const date = new Date().toISOString();
+          this.statusService.registerStatus(this.clientId, status, this.city, date).subscribe(
+            data => console.log('Status registered: ', data),
+            error => console.error('Error registering status: ', error)
+          );
+        } else {
+          console.error('Client ID or city is missing');
+        }
       })
       .catch(error => {
         console.error('There was a problem with the fetch operation:', error);

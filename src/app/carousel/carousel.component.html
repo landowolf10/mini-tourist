@@ -23,10 +23,10 @@
 	</button>
 	<!-- Carousel -->
 	<div class="carousel">
-	  <ng-container *ngFor="let imageName of imageNames">
+	  <ng-container *ngFor="let card of cards">
 		<a class="carousel-item">
 			<div *ngIf="hasImages; else noCards" class="img-area">
-				<img [src]=imageName alt="{{ imageName }}" (click)="openImageModal($event, imageName)">
+				<img [src]=card.image alt="{{ card.image }}" (click)="openImageModal($event, card)">
 			</div>
 		  <ng-template #noCards>
 			No hay tarjetas

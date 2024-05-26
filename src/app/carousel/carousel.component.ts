@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ImageModalComponent } from '../image-modal/image-modal.component';
 import { SelectedImageService } from '../services/selected-image.service';
 import { DownloadButtonService } from '../services/download-button.service';
+import { StatusService } from '../services/card-status.service';
 
 
 declare var $: any;
@@ -25,17 +26,19 @@ interface Card {
   styleUrls: ['./carousel.component.css']
 })
 export class CarouselComponent implements OnInit  {
-  imageNames: string[] = [];
+  cards: Card[] = [];
   socialMedia: string[] = ['facebook.png', 'whats.png', 'instagram.png', 'twitter.png'];
   isExpanded = false;
   selectedItem: string = 'Premium';
   hasImages: boolean = false;
+  //clientId: number = 0;
 
   constructor(
     private http: HttpClient,
     public dialog: MatDialog,
     private selectedImageService: SelectedImageService,
-    private downloadButtonService: DownloadButtonService
+    private downloadButtonService: DownloadButtonService,
+    private statusService: StatusService
   ) {}
 
   ngOnInit() {
@@ -48,27 +51,23 @@ export class CarouselComponent implements OnInit  {
   fetchPremiumImages() {
     const apiUrl = `http://localhost:9090/api/client/category/premium?isPremium=Yes`;
     this.http.get<Card[]>(apiUrl).subscribe(data => {
-      this.imageNames = data.map(item => item.image);
-      console.log('Premium names: ', this.imageNames);
-      console.log('Premium array length: ', this.imageNames.length);
+      this.cards = data;
+      console.log('Premium cards: ', this.cards);
 
-      if(this.imageNames.length > 0)
-      { 
+      if (this.cards.length > 0) { 
         this.hasImages = true;
         this.initializeCarousel();
       }
     });
   }
-
+  
   fetchImageNames() {
     const apiUrl = `http://localhost:9090/api/client/category?category=${this.selectedItem}`;
     this.http.get<Card[]>(apiUrl).subscribe(data => {
-      this.imageNames = data.map(item => item.image);
-      console.log('Image names: ', this.imageNames);
-      console.log('Images array length: ', this.imageNames.length);
+      this.cards = data;
+      console.log('Cards: ', this.cards);
 
-      if(this.imageNames.length > 0)
-      { 
+      if (this.cards.length > 0) { 
         this.hasImages = true;
         this.initializeCarousel();
       }
@@ -115,23 +114,40 @@ export class CarouselComponent implements OnInit  {
     setTimeout(() => this.autoplay(), 4500);
   }
 
-  openImageModal(event: Event, imageName: string): void {
+  openImageModal(event: Event, card: Card): void {
     event.preventDefault();
-    this.selectedImageService.setSelectedImageName(imageName);
+    this.selectedImageService.setSelectedImageName(card.image);
     this.downloadButtonService.setButtonVisibility(true);
 
-    console.log('Selected image name: ', imageName);
+    console.log('Selected image name: ', card);
 
     const dialogRef = this.dialog.open(ImageModalComponent, {
       //This is used in the image-modal.component.html file
       data: { 
-        frontImageSrc: imageName,
-        backImageSrc: `assets/cards/${this.selectedItem}/Fishers.jpg`
+        card: card,
+        frontImageSrc: card.image,
+        backImageSrc: card.image
       }
     });
 
     dialogRef.afterClosed().subscribe(() => {
       this.downloadButtonService.setButtonVisibility(false);
     });
+
+    //Call status API (Visited)
+    const status = 'Visited';
+    const date = new Date().toISOString();
+    //this.clientId = card.clientId;
+
+    console.log('Client Id: ', card.clientId);
+
+    this.statusService.registerStatus(card.clientId, status, card.city, date).subscribe(
+      data => {
+        console.log('Status registered: ', data);
+      },
+      error => {
+        console.error('Error registering status: ', error);
+      }
+    );
   }
 }
